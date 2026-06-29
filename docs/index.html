@@ -1,0 +1,372 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <title>Comunica con impacto v3.19</title>
+  <link rel="stylesheet" href="styles.css" />
+
+  <script defer src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script defer src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
+  <script defer src="config.js"></script>
+  <script defer src="app.js"></script>
+</head>
+
+<body>
+  <main class="app">
+    <header class="app-header">
+      <div class="brand">
+        <strong>Comunica con impacto</strong>
+        <span id="versionLabel">v3.19</span>
+      </div>
+
+      <div class="status-group">
+        <span id="storageStatus">Modo local</span>
+        <span id="roleStatus">Participante</span>
+      </div>
+    </header>
+
+    <section class="hero">
+      <h1>Comunica con impacto</h1>
+      <p>
+        Practica oratoria con retos de huella de carbono, reciclaje y atención al cliente.
+        Graba tu audio, transcribe literalmente lo dicho y recibe retroalimentación detallada.
+      </p>
+
+      <div class="hero-actions">
+        <button id="openStudentBtn" class="light-btn">Participante</button>
+        <button id="openEvaluatorBtn" class="light-btn">Panel evaluador</button>
+      </div>
+    </section>
+
+    <section class="panel" id="qrPanel">
+      <h2>QR del evento</h2>
+
+      <div class="grid">
+        <article>
+          <h3>URL pública para alumnos</h3>
+          <p>Para evento real, publica la carpeta <strong>frontend</strong> en HTTPS y pega esa URL aquí o en <strong>config.js</strong>.</p>
+
+          <label for="publicUrlInput">URL del QR</label>
+          <input id="publicUrlInput" type="url" placeholder="https://tu-app.vercel.app" />
+
+          <div class="actions">
+            <button id="generateQrBtn" class="primary">Generar QR</button>
+            <button id="copyQrUrlBtn" class="secondary">Copiar URL</button>
+          </div>
+
+          <p id="qrStatus" class="hint"></p>
+        </article>
+
+        <article class="qr-card">
+          <h3>Código QR</h3>
+          <canvas id="qrCanvas" width="260" height="260"></canvas>
+          <p id="qrUrlLabel"></p>
+        </article>
+      </div>
+    </section>
+
+    <section class="panel" id="studentSetupPanel">
+      <h2>Ingreso del participante</h2>
+
+      <div class="notice">
+        <strong>Versión activa:</strong>
+        <span id="buildInsidePanel">Comunica con impacto · v3.19</span>
+      </div>
+
+      <label for="studentAlias">Nombre o alias</label>
+      <input id="studentAlias" type="text" placeholder="Ejemplo: Ana, Mesa 3, Equipo Verde" maxlength="60" />
+
+      <label for="eventCodeInput">Código del evento</label>
+      <input id="eventCodeInput" type="text" placeholder="Ejemplo: VIVI-DEMO-001" />
+
+      <label for="challengeSelect">Reto o prueba a presentar</label>
+      <select id="challengeSelect"></select>
+
+      <label for="accessMode">Modo de respuesta</label>
+      <select id="accessMode">
+        <option value="voice">Voz desde celular/computador</option>
+        <option value="text">Texto / accesibilidad</option>
+      </select>
+
+      <div class="notice">
+        <strong>Transcripción automática preliminar:</strong>
+        la app intentará transcribir mientras grabas y pondrá ese texto en el cuadro de evaluación.
+        Antes de evaluar, reproduce el audio y corrige cualquier palabra o muletilla que el navegador haya limpiado.
+      </div>
+
+      <button id="startStudentBtn" class="primary">Iniciar prueba</button>
+    </section>
+
+    <section class="panel hidden" id="challengePanel">
+      <div class="topline">
+        <span id="phaseLabel">Reto</span>
+        <span id="timerLabel">00:00</span>
+      </div>
+
+      <h2 id="challengeTitle"></h2>
+      <p id="challengeDescription"></p>
+
+      <div class="challenge-meta">
+        <span id="challengeTopic"></span>
+        <span>Grabación: mínimo 30 s · máximo 120 s</span>
+      </div>
+
+      <div class="controls" id="voiceControls">
+        <button id="recordBtn" class="primary">Grabar respuesta</button>
+        <button id="stopBtn" class="secondary" disabled>Detener</button>
+        <button id="micTestBtn" class="secondary">Probar micrófono</button>
+        <p class="hint" id="speechSupportMessage"></p>
+      </div>
+
+      <div class="mic-panel">
+        <strong>Estado del audio</strong>
+        <div class="meter"><div id="micLevelBar"></div></div>
+        <p id="micDiagnosticText">Aún no se ha probado el micrófono.</p>
+
+        <audio id="audioPlayback" controls class="hidden"></audio>
+        <a id="downloadAudioLink" class="audio-link hidden" href="#" download="comunica-audio.webm">
+          Descargar audio grabado
+        </a>
+      </div>
+
+      <div class="live-box">
+        <strong>Transcripción automática preliminar</strong>
+        <p id="liveTranscript">La app intentará transcribir mientras grabas. Si el navegador no lo permite, escribe o corrige manualmente en el cuadro.</p>
+      </div>
+
+      <div class="transcript-box">
+        <div class="actions">
+          <button id="forceAppendTranscriptBtn" class="secondary" type="button">Forzar captura de transcripción</button>
+          <button id="clearTranscriptBtn" class="ghost" type="button">Limpiar transcripción</button>
+        </div>
+        <p class="hint">
+          La transcripción automática depende del navegador. Para máxima precisión, reproduce el audio y corrige el texto antes de evaluar.
+        </p>
+
+        <label for="transcriptInput">Transcripción literal para evaluación</label>
+        <textarea
+          id="transcriptInput"
+          rows="9"
+          placeholder="Aquí aparecerá la transcripción automática si el navegador la permite. Revísala contra el audio y corrige manualmente muletillas o palabras mal reconocidas antes de evaluar."></textarea>
+
+        <div id="fillerPreviewBox" class="literal-analysis-box">
+          <strong>Preanálisis de muletillas y repeticiones</strong>
+          <p id="fillerPreviewText">Escribe la transcripción literal para ver aquí las muletillas detectadas antes de evaluar.</p>
+        </div>
+      </div>
+
+      <div class="actions">
+        <button id="evaluateBtn" class="primary">Evaluar mi respuesta</button>
+        <button id="changeChallengeBtn" class="secondary">Cambiar reto</button>
+      </div>
+    </section>
+
+    <section class="panel hidden" id="resultPanel">
+      <h2>Resultado y niveles</h2>
+
+      <article class="levels-box">
+        <h3>Antes de interpretar el puntaje: ¿qué significa cada nivel?</h3>
+        <p>Estos niveles califican la respuesta, no a la persona. Sirven para saber si el mensaje quedó bajo, medio, bueno o excelente.</p>
+        <div id="levelsList"></div>
+      </article>
+
+      <div class="score-card">
+        <div>
+          <span class="score-label">Puntaje total</span>
+          <strong id="totalScore">0/100</strong>
+        </div>
+
+        <div>
+          <span class="score-label">Nivel obtenido</span>
+          <strong id="levelName">---</strong>
+        </div>
+
+        <div>
+          <span class="score-label">Verificación</span>
+          <strong id="validationCode">---</strong>
+        </div>
+
+        <div>
+          <span class="score-label">Guardado</span>
+          <strong id="saveStatus">Local</strong>
+        </div>
+      </div>
+
+      <article class="comparison">
+        <h3>Criterio del reto seleccionado</h3>
+        <p id="alignmentCriterionText">Se mostrará después de evaluar.</p>
+      </article>
+
+      <div class="grid">
+        <article>
+          <h3>Comunicación</h3>
+          <ul id="communicationScores" class="score-accordion"></ul>
+        </article>
+
+        <article>
+          <h3>Alineación con el reto seleccionado</h3>
+          <ul id="sustainabilityScores" class="score-accordion"></ul>
+        </article>
+      </div>
+
+      <article class="feedback">
+        <h3>Retroalimentación educativa</h3>
+        <p id="feedbackText"></p>
+      </article>
+
+      <article class="detailed-report">
+        <h3>Informe detallado de mejora</h3>
+        <div id="detailedImprovementReport"></div>
+      </article>
+
+      <article class="badges">
+        <h3>Medallas obtenidas</h3>
+        <div id="badgesList"></div>
+      </article>
+
+      <div class="actions">
+        <button id="newAttemptBtn" class="primary">Nueva prueba</button>
+        <button id="downloadPdfBtn" class="secondary">Descargar PDF APA</button>
+        <button id="downloadJsonBtn" class="secondary">Descargar JSON</button>
+      </div>
+    </section>
+
+    <section class="panel hidden" id="evaluatorPanel">
+      <h2>Panel evaluador</h2>
+
+      <div class="notice">
+        El contenido está protegido. Debes ingresar usuario y contraseña para ver datos.
+      </div>
+
+      <div class="grid">
+        <article id="evaluatorLoginCard">
+          <h3>Ingreso evaluador</h3>
+
+          <label for="evaluatorEmail">Usuario</label>
+          <input id="evaluatorEmail" type="text" autocomplete="username" placeholder="Digite el usuario evaluador" />
+
+          <label for="evaluatorPassword">Contraseña</label>
+          <input id="evaluatorPassword" type="password" autocomplete="current-password" placeholder="Digite la contraseña" />
+
+          <label for="dashboardEventCode">Evento a consultar</label>
+          <input id="dashboardEventCode" type="text" />
+
+          <div class="actions">
+            <button id="loginEvaluatorBtn" class="primary">Ingresar</button>
+            <button id="logoutEvaluatorBtn" class="ghost">Cerrar sesión</button>
+          </div>
+
+          <p id="evaluatorLoginStatus" class="hint"></p>
+          <p class="hint">Con Supabase configurado, VGU / 8028 verá resultados de todos los celulares en modo centralizado.</p>
+        </article>
+
+        <article id="evaluatorActionsCard" class="protected-evaluator hidden">
+          <h3>Acciones del evaluador</h3>
+          <div class="actions">
+            <button id="goDeletePanelBtn" class="ghost danger-button">🗑️ Ir a borrar respuestas</button>
+            <button id="openStatsDashboardBtn" class="secondary icon-button">📊 Dashboard estadístico</button>
+          </div>
+          <p class="hint">Estas acciones solo aparecen después de ingresar usuario y contraseña.</p>
+        </article>
+
+        <article id="evaluatorDataCard" class="protected-evaluator hidden">
+          <h3>Métricas</h3>
+          <ul id="dashboardMetrics"><li>Inicia sesión para ver métricas.</li></ul>
+          <button id="refreshDashboardBtn" class="secondary">Actualizar</button>
+        </article>
+      </div>
+
+      <article id="evaluatorResponsesCard" class="feedback protected-evaluator hidden">
+        <h3>Respuestas recientes</h3>
+        <div id="responsesTable" class="table-wrap"><p>No hay respuestas cargadas.</p></div>
+      </article>
+
+      <article id="evaluatorFullReportCard" class="feedback protected-evaluator hidden">
+        <h3>📄 Informe completo por alumno</h3>
+        <p>Selecciona un alumno y una respuesta para ver el informe final completo guardado.</p>
+
+        <label for="reportStudentSelect">Alumno</label>
+        <select id="reportStudentSelect">
+          <option value="">Carga el dashboard para ver alumnos</option>
+        </select>
+
+        <label for="reportResponseSelect">Respuesta guardada</label>
+        <select id="reportResponseSelect">
+          <option value="">Selecciona un alumno primero</option>
+        </select>
+
+        <div class="actions">
+          <button id="viewSavedReportBtn" class="secondary">Ver informe guardado</button>
+          <button id="downloadSavedReportJsonBtn" class="secondary">Descargar informe JSON</button>
+        </div>
+
+        <div id="savedReportViewer" class="saved-report-viewer">
+          <p>No hay informe seleccionado.</p>
+        </div>
+      </article>
+
+      <article id="evaluatorDeleteCard" class="feedback protected-evaluator hidden">
+        <h3>🗑️ Borrar respuestas por alumno</h3>
+        <p>Selecciona primero el alumno y luego la respuesta específica. También puedes borrar todas las respuestas del alumno seleccionado.</p>
+
+        <label for="deleteStudentSelect">Alumno</label>
+        <select id="deleteStudentSelect"><option value="">Carga el dashboard para ver alumnos</option></select>
+
+        <label for="deleteResponseSelect">Respuesta del alumno</label>
+        <select id="deleteResponseSelect"><option value="">Selecciona un alumno primero</option></select>
+
+        <div class="actions">
+          <button id="deleteSelectedResponseBtn" class="ghost danger-button">🗑️ Borrar respuesta seleccionada</button>
+          <button id="deleteAllStudentResponsesBtn" class="ghost danger-button">🗑️ Borrar todas las respuestas del alumno</button>
+        </div>
+
+        <p id="deleteResponseStatus" class="hint"></p>
+      </article>
+    </section>
+
+    <section class="panel hidden" id="statsDashboardPanel">
+      <div class="topline">
+        <h2>Dashboard estadístico del evento</h2>
+        <button id="closeStatsDashboardBtn" class="ghost">Volver al panel</button>
+      </div>
+
+      <div class="dashboard-grid">
+        <article class="kpi-card"><span>Respuestas</span><strong id="dashTotalResponses">0</strong></article>
+        <article class="kpi-card"><span>Promedio total</span><strong id="dashAverageTotal">0/100</strong></article>
+        <article class="kpi-card"><span>Comunicación</span><strong id="dashAverageCommunication">0/100</strong></article>
+        <article class="kpi-card"><span>Alineación al reto</span><strong id="dashAverageSustainability">0/100</strong></article>
+      </div>
+
+      <div class="grid">
+        <article>
+          <h3>Promedio por dimensión</h3>
+          <div id="dimensionBars"></div>
+        </article>
+        <article>
+          <h3>Distribución por nivel</h3>
+          <div id="levelDistribution"></div>
+        </article>
+      </div>
+
+      <article class="feedback">
+        <h3>Promedio por reto</h3>
+        <div id="challengeAverages"></div>
+      </article>
+
+      <article class="feedback">
+        <h3>Lectura ejecutiva</h3>
+        <p id="dashboardExecutiveSummary">Inicia sesión y carga datos para ver el análisis.</p>
+      </article>
+    </section>
+
+    <section class="panel history" id="historyPanel">
+      <h2>Historial local de este dispositivo</h2>
+      <p>En modo local, cada dispositivo conserva sus propias respuestas. Con Supabase activo, el evaluador ve el consolidado general.</p>
+      <div id="historyList"></div>
+    </section>
+  </main>
+</body>
+</html>
