@@ -56,8 +56,10 @@
           <img id="qrImage" class="qr-image qr-image-large" src="qr-comunica-con-impacto.png" alt="QR Comunica con impacto" />
           <p class="hint">Usa la cámara del celular. No necesitas escribir la dirección.</p>
 
+          <!-- HOTFIX v3.21: qrCanvas oculto requerido por app.js para no cortar la carga de retos -->
           <!-- Elementos técnicos ocultos para no romper la lógica existente -->
           <div class="technical-hidden" aria-hidden="true">
+            <canvas id="qrCanvas" width="260" height="260"></canvas>
             <input id="publicUrlInput" type="url" tabindex="-1" />
             <button id="generateQrBtn" type="button" tabindex="-1">Generar QR</button>
             <button id="copyQrUrlBtn" type="button" tabindex="-1">Copiar URL</button>
