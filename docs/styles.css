@@ -523,7 +523,7 @@ th {
 }
 
 
-/* v3.21 - QR real legible */
+/* v3.22 - QR real legible */
 .qr-image {
   width: min(360px, 100%);
   max-width: 100%;
@@ -547,7 +547,7 @@ th {
 }
 
 
-/* v3.21 - Vista limpia para alumnos: QR sin dirección visible */
+/* v3.22 - Vista limpia para alumnos: QR sin dirección visible */
 .qr-clean-panel h2 {
   text-align: center;
 }
@@ -581,4 +581,40 @@ th {
     width: min(340px, 88vw);
     border-width: 14px;
   }
+}
+
+
+/* HOTFIX v3.22 - selector de reto funcional en iPhone/Safari */
+#studentSetupPanel {
+  position: relative;
+  z-index: 10;
+}
+
+#challengeSelect,
+#accessMode,
+select {
+  pointer-events: auto !important;
+  -webkit-appearance: menulist !important;
+  appearance: auto !important;
+  position: relative !important;
+  z-index: 999 !important;
+  background-color: #ffffff !important;
+  color: #0d2b45 !important;
+  min-height: 48px !important;
+  touch-action: manipulation !important;
+}
+
+#challengeSelect option,
+#accessMode option {
+  color: #0d2b45 !important;
+  background: #ffffff !important;
+}
+
+/* mantiene la URL oculta dentro de la app */
+#qrUrlLabel,
+#publicUrlInput,
+#generateQrBtn,
+#copyQrUrlBtn,
+#qrStatus {
+  display: none !important;
 }
