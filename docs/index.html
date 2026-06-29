@@ -4,10 +4,10 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-  <title>Comunica con impacto v3.22</title>
-  <link rel="stylesheet" href="styles.css?v=322" />
-  <link rel="manifest" href="manifest.webmanifest?v=322" />
-  <link rel="apple-touch-icon" href="icon-192.png?v=322" />
+  <title>Comunica con impacto v3.23</title>
+  <link rel="stylesheet" href="styles.css?v=323" />
+  <link rel="manifest" href="manifest.webmanifest?v=323" />
+  <link rel="apple-touch-icon" href="icon-192.png?v=323" />
   <meta name="theme-color" content="#005b96" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-title" content="Comunica" />
@@ -16,8 +16,8 @@
   <script defer src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script defer src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 
-  <script defer src="config.js?v=322"></script>
-  <script defer src="app.js?v=322"></script>
+  <script defer src="config.js?v=323"></script>
+  <script defer src="app.js?v=323"></script>
 </head>
 
 <body>
@@ -25,7 +25,7 @@
     <header class="app-header">
       <div class="brand">
         <strong>Comunica con impacto</strong>
-        <span id="versionLabel">v3.22</span>
+        <span id="versionLabel">v3.23</span>
       </div>
 
       <div class="status-group">
@@ -53,10 +53,10 @@
       <div class="qr-clean-layout">
         <article class="qr-card qr-clean-card">
           <h3>Escanea este código para ingresar</h3>
-          <img id="qrImage" class="qr-image qr-image-large" src="qr-comunica-con-impacto.png?v=322" alt="QR Comunica con impacto" />
+          <img id="qrImage" class="qr-image qr-image-large" src="qr-comunica-con-impacto.png?v=323" alt="QR Comunica con impacto" />
           <p class="hint">Usa la cámara del celular. No necesitas escribir la dirección.</p>
 
-          <!-- HOTFIX v3.22: qrCanvas oculto requerido por app.js para no cortar la carga de retos -->
+          <!-- HOTFIX v3.23: qrCanvas oculto requerido por app.js para no cortar la carga de retos -->
           <!-- Elementos técnicos ocultos para no romper la lógica existente -->
           <div class="technical-hidden" aria-hidden="true">
             <canvas id="qrCanvas" width="260" height="260"></canvas>
@@ -76,7 +76,7 @@
 
       <div class="notice">
         <strong>Versión activa:</strong>
-        <span id="buildInsidePanel">Comunica con impacto · v3.22</span>
+        <span id="buildInsidePanel">Comunica con impacto · v3.23</span>
       </div>
 
       <label for="studentAlias">Nombre o alias</label>
@@ -371,5 +371,64 @@
       <div id="historyList"></div>
     </section>
   </main>
+
+  <script>
+    // HOTFIX v3.23: fuerza versión visible, QR compacto y selector de reto en móvil.
+    (function () {
+      const UI_VERSION = "v3.23";
+
+      function fixScreen() {
+        document.title = "Comunica con impacto " + UI_VERSION;
+
+        const versionLabel = document.getElementById("versionLabel");
+        if (versionLabel) versionLabel.textContent = UI_VERSION;
+
+        const buildInsidePanel = document.getElementById("buildInsidePanel");
+        if (buildInsidePanel) buildInsidePanel.textContent = "Comunica con impacto · " + UI_VERSION;
+
+        const qrUrlLabel = document.getElementById("qrUrlLabel");
+        if (qrUrlLabel) {
+          qrUrlLabel.textContent = "";
+          qrUrlLabel.style.display = "none";
+        }
+
+        const qrImage = document.getElementById("qrImage");
+        if (qrImage) {
+          qrImage.style.maxWidth = "300px";
+          qrImage.style.width = "min(300px, 82vw)";
+          qrImage.style.height = "auto";
+          qrImage.style.display = "block";
+          qrImage.style.margin = "6px auto";
+        }
+
+        const challengeSelect = document.getElementById("challengeSelect");
+        if (challengeSelect) {
+          if (challengeSelect.options.length < 3) {
+            challengeSelect.innerHTML = [
+              '<option value="0">1. Huella de carbono</option>',
+              '<option value="1">2. Reciclaje</option>',
+              '<option value="2">3. Atención al cliente</option>'
+            ].join("");
+          }
+          challengeSelect.disabled = false;
+          challengeSelect.removeAttribute("disabled");
+          challengeSelect.style.pointerEvents = "auto";
+          challengeSelect.style.webkitAppearance = "menulist";
+          challengeSelect.style.appearance = "auto";
+          challengeSelect.style.position = "relative";
+          challengeSelect.style.zIndex = "9999";
+          challengeSelect.style.backgroundColor = "#ffffff";
+          challengeSelect.style.color = "#0d2b45";
+        }
+      }
+
+      document.addEventListener("DOMContentLoaded", fixScreen);
+      window.addEventListener("load", function () {
+        fixScreen();
+        [200, 600, 1200, 2500].forEach(function(ms) { setTimeout(fixScreen, ms); });
+      });
+    })();
+  </script>
+
 </body>
 </html>

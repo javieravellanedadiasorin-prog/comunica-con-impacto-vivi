@@ -523,7 +523,7 @@ th {
 }
 
 
-/* v3.22 - QR real legible */
+/* v3.23 - QR real legible */
 .qr-image {
   width: min(360px, 100%);
   max-width: 100%;
@@ -547,7 +547,7 @@ th {
 }
 
 
-/* v3.22 - Vista limpia para alumnos: QR sin dirección visible */
+/* v3.23 - Vista limpia para alumnos: QR sin dirección visible */
 .qr-clean-panel h2 {
   text-align: center;
 }
@@ -584,7 +584,7 @@ th {
 }
 
 
-/* HOTFIX v3.22 - selector de reto funcional en iPhone/Safari */
+/* HOTFIX v3.23 - selector de reto funcional en iPhone/Safari */
 #studentSetupPanel {
   position: relative;
   z-index: 10;
@@ -617,4 +617,57 @@ select {
 #copyQrUrlBtn,
 #qrStatus {
   display: none !important;
+}
+
+
+/* HOTFIX v3.23 - QR compacto y selector móvil estable */
+.qr-clean-card {
+  padding: 16px !important;
+}
+
+.qr-image,
+.qr-image-large {
+  width: min(300px, 82vw) !important;
+  max-width: 300px !important;
+  height: auto !important;
+  border: 10px solid #ffffff !important;
+  margin: 6px auto 10px !important;
+}
+
+.qr-clean-panel {
+  padding: 16px !important;
+}
+
+#qrUrlLabel,
+#publicUrlInput,
+#generateQrBtn,
+#copyQrUrlBtn,
+#qrStatus {
+  display: none !important;
+}
+
+#challengeSelect,
+#accessMode,
+select {
+  pointer-events: auto !important;
+  -webkit-appearance: menulist !important;
+  appearance: auto !important;
+  position: relative !important;
+  z-index: 9999 !important;
+  background-color: #ffffff !important;
+  color: #0d2b45 !important;
+  min-height: 50px !important;
+  touch-action: manipulation !important;
+}
+
+@media (max-width: 720px) {
+  .hero {
+    padding: 18px !important;
+  }
+  .hero h1 {
+    font-size: 2.1rem !important;
+  }
+  .panel {
+    padding: 16px !important;
+  }
 }
