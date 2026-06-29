@@ -4,8 +4,14 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-  <title>Comunica con impacto v3.19</title>
+  <title>Comunica con impacto v3.21</title>
   <link rel="stylesheet" href="styles.css" />
+  <link rel="manifest" href="manifest.webmanifest" />
+  <link rel="apple-touch-icon" href="icon-192.png" />
+  <meta name="theme-color" content="#005b96" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-title" content="Comunica" />
+  <meta name="mobile-web-app-capable" content="yes" />
 
   <script defer src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script defer src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
@@ -19,7 +25,7 @@
     <header class="app-header">
       <div class="brand">
         <strong>Comunica con impacto</strong>
-        <span id="versionLabel">v3.19</span>
+        <span id="versionLabel">v3.21</span>
       </div>
 
       <div class="status-group">
@@ -41,29 +47,24 @@
       </div>
     </section>
 
-    <section class="panel" id="qrPanel">
-      <h2>QR del evento</h2>
+    <section class="panel qr-clean-panel" id="qrPanel">
+      <h2>Ingreso por QR</h2>
 
-      <div class="grid">
-        <article>
-          <h3>URL pública para alumnos</h3>
-          <p>Para evento real, publica la carpeta <strong>frontend</strong> en HTTPS y pega esa URL aquí o en <strong>config.js</strong>.</p>
+      <div class="qr-clean-layout">
+        <article class="qr-card qr-clean-card">
+          <h3>Escanea este código para ingresar</h3>
+          <img id="qrImage" class="qr-image qr-image-large" src="qr-comunica-con-impacto.png" alt="QR Comunica con impacto" />
+          <p class="hint">Usa la cámara del celular. No necesitas escribir la dirección.</p>
 
-          <label for="publicUrlInput">URL del QR</label>
-          <input id="publicUrlInput" type="url" placeholder="https://tu-app.vercel.app" />
-
-          <div class="actions">
-            <button id="generateQrBtn" class="primary">Generar QR</button>
-            <button id="copyQrUrlBtn" class="secondary">Copiar URL</button>
+          <!-- Elementos técnicos ocultos para no romper la lógica existente -->
+          <div class="technical-hidden" aria-hidden="true">
+            <input id="publicUrlInput" type="url" tabindex="-1" />
+            <button id="generateQrBtn" type="button" tabindex="-1">Generar QR</button>
+            <button id="copyQrUrlBtn" type="button" tabindex="-1">Copiar URL</button>
+            <p id="qrStatus"></p>
+            <p id="qrUrlLabel"></p>
+            <a id="downloadQrLink" href="qr-comunica-con-impacto.png" download="QR-Comunica-con-impacto.png">Descargar QR</a>
           </div>
-
-          <p id="qrStatus" class="hint"></p>
-        </article>
-
-        <article class="qr-card">
-          <h3>Código QR</h3>
-          <canvas id="qrCanvas" width="260" height="260"></canvas>
-          <p id="qrUrlLabel"></p>
         </article>
       </div>
     </section>
@@ -73,7 +74,7 @@
 
       <div class="notice">
         <strong>Versión activa:</strong>
-        <span id="buildInsidePanel">Comunica con impacto · v3.19</span>
+        <span id="buildInsidePanel">Comunica con impacto · v3.21</span>
       </div>
 
       <label for="studentAlias">Nombre o alias</label>
