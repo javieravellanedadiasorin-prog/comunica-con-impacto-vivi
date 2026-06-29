@@ -1,7 +1,7 @@
 window.ECOSPEAK_CONFIG = {
   APP_NAME: "Comunica con impacto",
-  APP_VERSION: "v3.19",
-  BUILD_LABEL: "v3.19",
+  APP_VERSION: "v3.23",
+  BUILD_LABEL: "v3.23",
   EVENT_CODE: "VIVI-DEMO-001",
   PUBLIC_APP_URL: "https://javieravellanedadiasorin-prog.github.io/comunica-con-impacto-vivi/",
 
